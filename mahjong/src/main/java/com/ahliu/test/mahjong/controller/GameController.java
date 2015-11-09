@@ -17,8 +17,9 @@ public class GameController {
 	@Autowired
 	private PlayerManager playerManager;
 
-	public Game createGame() {
-		return this.gameManager.createGame();
+	public Game createGame(String captainName) {
+		final Player captain = this.playerManager.getPlayer(captainName);
+		return this.gameManager.createGame(captain);
 	}
 
 	public void addPlayerToGame(String gameUuid, String playerName) {
@@ -51,7 +52,28 @@ public class GameController {
 		this.gameManager.addPlayer(game, player);
 	}
 
+	/**
+	 *
+	 * @param gameUuid
+	 * @param playerName
+	 */
 	public void removePlayerFromGame(String gameUuid, String playerName) {
+		final Game game = this.gameManager.getGame(gameUuid);
+		final Player player = this.playerManager.getPlayer(playerName);
+		this.gameManager.removePlayer(game, player);
+	}
 
+	/**
+	 * Start the game flow, can only be triggered by the table captain
+	 * @param gameUuid
+	 * @param requestPlayerName
+	 */
+	public void startGame(String gameUuid, String requestPlayerName) {
+		final Game game = this.gameManager.getGame(gameUuid);
+		final Player player = this.playerManager.getPlayer(requestPlayerName);
+
+		if (game.getCaptain().equals(player)) {
+			this.gameManager.startGame(game);
+		}
 	}
 }

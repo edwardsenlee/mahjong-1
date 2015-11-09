@@ -9,7 +9,10 @@ public class Game {
 	}
 
 	public enum Status {
-		RAW, WAITING_FOR_PLAYERS, PENDING_POS_INIT, PENDING_ROUND_START, ROUND_STARTED
+		RAW, WAITING_FOR_PLAYERS,
+		PENDING_GAME_START,
+		PENDING_POS_INIT, POS_INITIALIZED,
+		PENDING_ROUND_START, ROUND_STARTED
 	}
 
 	private String uuid;
@@ -17,6 +20,7 @@ public class Game {
 	private int roundNum;
 	private Wind wind;
 	private int index; // 1,2,3,4
+	private Player captain;
 	private List<Player> players;
 
 	private List<Tile> currentPool;
@@ -69,5 +73,11 @@ public class Game {
 	}
 	public void setStatus(Status status) {
 		this.status = status;
+	}
+	public Player getCaptain() {
+		return this.captain;
+	}
+	public void setCaptain(Player captain) {
+		this.captain = captain;
 	}
 }

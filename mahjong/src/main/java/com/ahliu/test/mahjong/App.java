@@ -1,11 +1,14 @@
 package com.ahliu.test.mahjong;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Hello world!
  *
  */
 public class App {
 	public static void main(String[] args) {
-		System.out.println("Hello World!");
+		final List<Integer> a = Arrays.asList(1,2,3,4);
 	}
 }
