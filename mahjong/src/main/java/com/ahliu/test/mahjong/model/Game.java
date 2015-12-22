@@ -1,83 +1,65 @@
 package com.ahliu.test.mahjong.model;
 
 import java.util.List;
+import java.util.Set;
 
 public class Game {
 
-	public enum Wind {
-		EAST, SOUTH, WEST, NORTH
-	}
-
 	public enum Status {
-		RAW, WAITING_FOR_PLAYERS,
-		PENDING_GAME_START,
-		PENDING_POS_INIT, POS_INITIALIZED,
-		PENDING_ROUND_START, ROUND_STARTED
+		UNOCCUPIED,
+		WAITING_FOR_PLAYERS,
+		PENDING_GAME_START
 	}
 
 	private String uuid;
-	private Status status;
-	private int roundNum;
-	private Wind wind;
-	private int index; // 1,2,3,4
-	private Player captain;
 	private List<Player> players;
+	private Player dealer;
+	private List<Match> matches;
+	private Set<Rule> ruleSet;
+	private Status status;
 
-	private List<Tile> currentPool;
-	private List<Tile> discardPool;
+	/**
+	 *
+	 * @return
+	 */
+	public boolean isOccupied() {
+		return this.status != Status.UNOCCUPIED;
+	}
 
 	public String getUuid() {
 		return this.uuid;
 	}
-	public void setUuid(String uuid) {
+	public void setUuid(final String uuid) {
 		this.uuid = uuid;
-	}
-	public int getRoundNum() {
-		return this.roundNum;
-	}
-	public void setRoundNum(int roundNum) {
-		this.roundNum = roundNum;
-	}
-	public Wind getWind() {
-		return this.wind;
-	}
-	public void setWind(Wind wind) {
-		this.wind = wind;
-	}
-	public int getIndex() {
-		return this.index;
-	}
-	public void setIndex(int index) {
-		this.index = index;
 	}
 	public List<Player> getPlayers() {
 		return this.players;
 	}
-	public void setPlayers(List<Player> players) {
+	public void setPlayers(final List<Player> players) {
 		this.players = players;
 	}
-	public List<Tile> getCurrentPool() {
-		return this.currentPool;
+	public Player getDealer() {
+		return this.dealer;
 	}
-	public void setCurrentPool(List<Tile> currentPool) {
-		this.currentPool = currentPool;
+	public void setDealer(final Player dealer) {
+		this.dealer = dealer;
 	}
-	public List<Tile> getDiscardPool() {
-		return this.discardPool;
+	public List<Match> getMatches() {
+		return this.matches;
 	}
-	public void setDiscardPool(List<Tile> discardPool) {
-		this.discardPool = discardPool;
+	public void setMatches(final List<Match> matches) {
+		this.matches = matches;
+	}
+	public Set<Rule> getRuleSet() {
+		return this.ruleSet;
+	}
+	public void setRuleSet(final Set<Rule> ruleSet) {
+		this.ruleSet = ruleSet;
 	}
 	public Status getStatus() {
 		return this.status;
 	}
-	public void setStatus(Status status) {
+	public void setStatus(final Status status) {
 		this.status = status;
-	}
-	public Player getCaptain() {
-		return this.captain;
-	}
-	public void setCaptain(Player captain) {
-		this.captain = captain;
 	}
 }

@@ -7,6 +7,7 @@ import com.ahliu.test.mahjong.model.Game;
 import com.ahliu.test.mahjong.model.Player;
 import com.ahliu.test.mahjong.service.GameManager;
 import com.ahliu.test.mahjong.service.PlayerManager;
+import com.ahliu.test.mahjong.util.ResponseCode;
 
 @Controller
 public class GameController {
@@ -17,63 +18,41 @@ public class GameController {
 	@Autowired
 	private PlayerManager playerManager;
 
-	public Game createGame(String captainName) {
-		final Player captain = this.playerManager.getPlayer(captainName);
-		return this.gameManager.createGame(captain);
+	public Response listAllGames() {
+		return Response.success().set("games", this.gameManager.getAllGames());
 	}
 
-	public void addPlayerToGame(String gameUuid, String playerName) {
-
-		/**
-		 * Part 1: validation
-		 */
-		// (a) check game existed
-		final Game game = this.gameManager.getGame(gameUuid);
-		if (game == null) {
-			// TODO: error handling
-			return;
-		}
-		// (b) check game status
-		if (game.getStatus() != Game.Status.WAITING_FOR_PLAYERS) {
-			// TODO: error handling
-			return;
-		}
-		// (c) check player already added
-		final Player player = this.playerManager.getPlayer(playerName);
+	public Response selectGame(final String sessionId, final String gameId) {
+		Player player = this.playerManager.getPlayerBySessionId(sessionId);
 		if (player == null) {
-			// TODO: error handling
-			return;
-		}
-		if (game.getPlayers().contains(player)) {
-			// TODO: error handling
-			return;
+			return Response.fail(ResponseCode.ERR_NOT_LOGGED_IN);
 		}
 
-		this.gameManager.addPlayer(game, player);
-	}
+		Game game = this.gameManager.getGame(gameId);
+		if (game == null) {
+			return Response.fail(ResponseCode.ERR_GAME_NOT_EXISTED);
+		}
 
-	/**
-	 *
-	 * @param gameUuid
-	 * @param playerName
-	 */
-	public void removePlayerFromGame(String gameUuid, String playerName) {
-		final Game game = this.gameManager.getGame(gameUuid);
-		final Player player = this.playerManager.getPlayer(playerName);
-		this.gameManager.removePlayer(game, player);
-	}
-
-	/**
-	 * Start the game flow, can only be triggered by the table captain
-	 * @param gameUuid
-	 * @param requestPlayerName
-	 */
-	public void startGame(String gameUuid, String requestPlayerName) {
-		final Game game = this.gameManager.getGame(gameUuid);
-		final Player player = this.playerManager.getPlayer(requestPlayerName);
-
-		if (game.getCaptain().equals(player)) {
-			this.gameManager.startGame(game);
+		synchronized(game) {
+			if (!game.isOccupied()) {
+				this.gameManager.occupyGame(player, game);
+				return Response.success();
+			} else {
+				return Response.fail(ResponseCode.ERR_GAME_OCCUPIED);
+			}
 		}
 	}
+
+	//	public Response unselectGame(final String sessionId) {
+	//		Player player = this.playerManager.getPlayerBySessionId(sessionId);
+	//		if (player == null) {
+	//			return Response.fail(ResponseCode.ERR_NOT_LOGGED_IN);
+	//		}
+	//
+	//		Game game = this.gameManager.getGameBySessionId(sessionId);
+	//		if (game == null) {
+	//			return Response.fail(ResponseCode.ERR_GAME_NOT_SELECTED);
+	//		}
+	//	}
+
 }

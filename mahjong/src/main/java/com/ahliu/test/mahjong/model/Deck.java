@@ -2,7 +2,7 @@ package com.ahliu.test.mahjong.model;
 
 import java.util.List;
 
-public class PlayerDeck {
+public class Deck {
 
 	private Player player;
 	private List<Tile> handTiles;
