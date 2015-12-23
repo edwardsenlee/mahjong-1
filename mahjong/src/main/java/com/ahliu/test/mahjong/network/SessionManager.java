@@ -17,9 +17,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -28,10 +26,13 @@ import org.springframework.stereotype.Service;
  *
  */
 @Service
-public class SessionManager implements ApplicationContextAware {
+public class SessionManager {
 
 	private static final int READ_BUFFER_SIZE = 8192;
-	private static final byte TERMINATING_BYTE = '\n';
+	private static final byte TERMINATING_BYTE = '\0';
+
+	@Autowired
+	private CommandManager commandManager;
 
 	private Selector socketSelector;
 
@@ -39,7 +40,6 @@ public class SessionManager implements ApplicationContextAware {
 	private static Map<SocketChannel,ByteBuffer> tempReadBufferMap = new HashMap<SocketChannel,ByteBuffer>();
 	private static Map<SocketChannel,Integer> tempReadSizeMap = new HashMap<SocketChannel,Integer>();
 
-	private ApplicationContext context;
 	private ByteBuffer readBuffer;
 	private Map<SocketChannel,BlockingQueue<ByteBuffer>> writeQueueMap = new HashMap<SocketChannel,BlockingQueue<ByteBuffer>>();
 
@@ -68,8 +68,8 @@ public class SessionManager implements ApplicationContextAware {
 
 			Iterator<SelectionKey> selectedKeys = this.socketSelector.selectedKeys().iterator();
 			while (selectedKeys.hasNext()) {
-				Runtime runtime = Runtime.getRuntime();
-				System.out.println(String.format("1) max mem = %d, allocated = %d, free = %d", runtime.maxMemory(), runtime.totalMemory(), runtime.freeMemory()));
+				//				Runtime runtime = Runtime.getRuntime();
+				//				System.out.println(String.format("1) max mem = %d, allocated = %d, free = %d", runtime.maxMemory(), runtime.totalMemory(), runtime.freeMemory()));
 				SelectionKey key = selectedKeys.next();
 				selectedKeys.remove();
 
@@ -138,10 +138,10 @@ public class SessionManager implements ApplicationContextAware {
 				tempReadSizeMap.remove(currentSocketChannel);
 
 				// submit to executor
-				executorService.execute(new ExecutionWorker(this.context, currentSocketChannel, existingReadBuffer.array(), byteRead + existingSize));
+				executorService.execute(new ExecutionWorker(this, this.commandManager, currentSocketChannel, existingReadBuffer.array(), byteRead + existingSize));
 			} else {
 				// all read, no old bytes, submit to executor
-				executorService.execute(new ExecutionWorker(this.context, currentSocketChannel, this.readBuffer.array(), byteRead));
+				executorService.execute(new ExecutionWorker(this, this.commandManager, currentSocketChannel, this.readBuffer.array(), byteRead));
 			}
 
 		} else { // incompleted command is read, more bytes are coming
@@ -167,8 +167,10 @@ public class SessionManager implements ApplicationContextAware {
 		while (!requestQueue.isEmpty()) {
 			ByteBuffer writeBuffer = requestQueue.peek();
 			if (writeBuffer != null) {
+				System.out.println("[DEBUG2] " + new String(writeBuffer.array()));
 				socketChannel.write(writeBuffer);
 				if (writeBuffer.remaining() > 0) {
+					System.out.println("[DEBUG3] haha~");
 					break;
 				}
 
@@ -194,10 +196,5 @@ public class SessionManager implements ApplicationContextAware {
 		socketChannel.keyFor(this.socketSelector).interestOps(SelectionKey.OP_WRITE);
 
 		this.socketSelector.wakeup();
-	}
-
-	@Override
-	public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
-		this.context = applicationContext;
 	}
 }

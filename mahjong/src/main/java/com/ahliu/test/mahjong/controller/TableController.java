@@ -3,39 +3,39 @@ package com.ahliu.test.mahjong.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import com.ahliu.test.mahjong.model.Game;
 import com.ahliu.test.mahjong.model.Player;
-import com.ahliu.test.mahjong.service.GameManager;
+import com.ahliu.test.mahjong.model.Table;
 import com.ahliu.test.mahjong.service.PlayerManager;
+import com.ahliu.test.mahjong.service.TableManager;
 import com.ahliu.test.mahjong.util.ResponseCode;
 
 @Controller
-public class GameController {
+public class TableController {
 
 	@Autowired
-	private GameManager gameManager;
+	private TableManager tableManager;
 
 	@Autowired
 	private PlayerManager playerManager;
 
-	public Response listAllGames() {
-		return Response.success().set("games", this.gameManager.getAllGames());
+	public Response listAllTables() {
+		return Response.success().set("tables", this.tableManager.getAllTables());
 	}
 
-	public Response selectGame(final String sessionId, final String gameId) {
+	public Response selectTable(final String sessionId, final String tableId) {
 		Player player = this.playerManager.getPlayerBySessionId(sessionId);
 		if (player == null) {
 			return Response.fail(ResponseCode.ERR_NOT_LOGGED_IN);
 		}
 
-		Game game = this.gameManager.getGame(gameId);
-		if (game == null) {
+		Table table = this.tableManager.getTable(tableId);
+		if (table == null) {
 			return Response.fail(ResponseCode.ERR_GAME_NOT_EXISTED);
 		}
 
-		synchronized(game) {
-			if (!game.isOccupied()) {
-				this.gameManager.occupyGame(player, game);
+		synchronized(table) {
+			if (!table.isOccupied()) {
+				this.tableManager.occupyTable(player, table);
 				return Response.success();
 			} else {
 				return Response.fail(ResponseCode.ERR_GAME_OCCUPIED);
@@ -43,30 +43,28 @@ public class GameController {
 		}
 	}
 
-	public Response unselectGame(final String sessionId) {
+	public Response unselectTable(final String sessionId) {
 		Player player = this.playerManager.getPlayerBySessionId(sessionId);
 		if (player == null) {
 			return Response.fail(ResponseCode.ERR_NOT_LOGGED_IN);
 		}
 
-		Game game = this.gameManager.getGameBySessionId(sessionId);
-		if (game == null) {
+		Table table = this.tableManager.getTableBySessionId(sessionId);
+		if (table == null) {
 			return Response.fail(ResponseCode.ERR_GAME_NOT_SELECTED);
 		}
 
-		synchronized(game) {
-			if (game.canQuit()) {
-				if (game.getDealer().equals(player)) {
-					// dealer leaves game, dismiss
-					this.gameManager.unoccupyGame(game);
+		synchronized(table) {
+			if (table.canQuit()) {
+				if (table.getDealer().equals(player)) {
+					// dealer leaves table, dismiss
+					this.tableManager.unoccupyTable(table);
 				} else {
 					// just a player leave
-					this.gameManager.leaveGame(game, player);
 				}
 			} else {
 				return Response.fail(ResponseCode.ERR_GAME_ALREADY_STARTED);
 			}
 		}
 	}
-
 }

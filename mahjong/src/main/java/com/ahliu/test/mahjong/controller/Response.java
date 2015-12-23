@@ -79,7 +79,7 @@ public class Response {
 	@Override
 	public String toString() {
 		try {
-			return objectMapperHolder.get().writeValueAsString(this);
+			return objectMapperHolder.get().writeValueAsString(this) + '\n';
 		} catch (final JsonProcessingException e) {
 			throw new RuntimeException(e);
 		}

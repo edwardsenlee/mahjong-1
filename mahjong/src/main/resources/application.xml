@@ -8,4 +8,11 @@
 
 	<context:component-scan base-package="com.ahliu.test.mahjong" />
 	
+	<bean id="commandMappings" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="locations">
+			<list>
+				<value>classpath*:commands.properties</value>
+			</list>
+		</property>
+	</bean>
 </beans>

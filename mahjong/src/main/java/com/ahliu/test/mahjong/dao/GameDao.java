@@ -17,7 +17,7 @@ public class GameDao {
 
 	static {
 		// initialize 60 unoccupied tables for players to choose
-		for (int i = 0; i < 60; i++) {
+		for (int i = 0; i < 4; i++) {
 			Game game = new Game();
 			game.setStatus(Game.Status.UNOCCUPIED);
 			game.setUuid("game-" + i);

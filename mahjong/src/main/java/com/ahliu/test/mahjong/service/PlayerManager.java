@@ -148,9 +148,9 @@ public class PlayerManager {
 	public void logout(final Player player) {
 		this.sessionPlayerMapLock.writeLock().lock();
 		try {
+			this.sessionPlayerMap.remove(player.getSessionId());
 			player.setStatus(Player.Status.NOT_LOGGED_IN);
 			player.setSessionId(null);
-			this.sessionPlayerMap.remove(player.getSessionId());
 		} finally {
 			this.sessionPlayerMapLock.writeLock().unlock();
 		}

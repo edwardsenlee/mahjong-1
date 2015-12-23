@@ -58,10 +58,16 @@ public class GameManager {
 	 * @param player
 	 * @param game
 	 */
-	public void occupyGame(final Player player, final Game game) {
+	public void occupyGame(final Player dealer, final Game game) {
 		synchronized(game) {
 			// set game to occupied
 			game.setStatus(Game.Status.WAITING_FOR_PLAYERS);
+		}
+	}
+
+	public void unoccupyGame(final Game game) {
+		synchronized(game) {
+
 		}
 	}
 }

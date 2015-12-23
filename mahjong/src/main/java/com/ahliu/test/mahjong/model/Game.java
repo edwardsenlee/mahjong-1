@@ -8,7 +8,8 @@ public class Game {
 	public enum Status {
 		UNOCCUPIED,
 		WAITING_FOR_PLAYERS,
-		PENDING_GAME_START
+		PENDING_GAME_START,
+		STARTED
 	}
 
 	private String uuid;
@@ -24,6 +25,22 @@ public class Game {
 	 */
 	public boolean isOccupied() {
 		return this.status != Status.UNOCCUPIED;
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	public boolean isStarted() {
+		return this.status == Status.STARTED;
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	public boolean canQuit() {
+		return !this.isStarted();
 	}
 
 	public String getUuid() {

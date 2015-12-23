@@ -48,6 +48,6 @@ public class Player {
 		if (obj == null || !(obj instanceof Player)) {
 			return false;
 		}
-		return this.getLogin().equals(((Player)obj).getLogin());
+		return this.getId() == ((Player)obj).getId();
 	}
 }
